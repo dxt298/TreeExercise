@@ -1,8 +1,11 @@
-﻿Build started 1/9/2015 7:41:53 PM.
+﻿Build started 1/11/2015 9:27:05 AM.
      1>Project "E:\GitHub\TreeExercise\Tree\Tree\Tree.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
          E:\Program Files\Microsoft Visual Studio 2012\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt main.cpp
          main.cpp
+     1>e:\github\treeexercise\tree\tree\node.h(188): warning C4018: '<' : signed/unsigned mismatch
+     1>e:\github\treeexercise\tree\tree\node.h(197): warning C4018: '<' : signed/unsigned mismatch
+     1>e:\github\treeexercise\tree\tree\main.cpp(12): warning C4101: 'blah' : unreferenced local variable
        Link:
          E:\Program Files\Microsoft Visual Studio 2012\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"E:\GitHub\TreeExercise\Tree\Debug\Tree.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"E:\GitHub\TreeExercise\Tree\Debug\Tree.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:\GitHub\TreeExercise\Tree\Debug\Tree.lib" /MACHINE:X86 Debug\main.obj
          Tree.vcxproj -> E:\GitHub\TreeExercise\Tree\Debug\Tree.exe
@@ -10,4 +13,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:00.81
+Time Elapsed 00:00:01.12
