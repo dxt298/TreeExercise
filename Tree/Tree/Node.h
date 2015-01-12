@@ -1,13 +1,19 @@
 #include <iostream>
-#include <iomanip>
+#include <fstream>
+#include <string>
 #include <vector>
+#include <math.h>
 
 
+/*A node knows the following things:
+	Its value
+	The level of the tree it's in
+	Its parent node
+	Its left and right children nodes
+*/
 struct Node{
 	int value;
 	int level;
-	bool LR; //left = 1; right = 0
-	bool visited;
 	Node *parent;
 	Node *leftChild;
 	Node *rightChild;
@@ -15,16 +21,15 @@ struct Node{
 	//Default
 	Node()
 	{
-		visited = false;
 		value = 1;
 		level = 1;
 		parent = NULL;
 		leftChild = NULL;
 		rightChild = NULL;
 	}
+	//Parameters for value, the level it's at, and the parent node
 	Node(int v, int lvl, Node* p)
 	{
-		visited = false;
 		value = v;
 		level = lvl;
 		parent = p;
@@ -33,183 +38,111 @@ struct Node{
 	}
 };
 
-//Global variables
-int loops = 0;
-Node *zeroNode = new Node(0, 0, NULL);
-
-Node* findNeighbor(Node* n, bool b /*1 = left, 0 = right*/)
+//Parameters:  List of parents at a level, total depth of the tree, index of 1
+void printTree(std::vector<Node*> parents, int depth, int j)
 {
-	Node *neighborNode;
-	if(b)
+	//Arbitrary indentation formula to make the tree print out nicely
+	int indent = pow(2, depth) / pow(2, j-1);
+	//If we hit the total depth of the tree, then we stop, otherwise keep printing values
+	if(j <= depth)
 	{
-		//Mark visited
-		n->visited = true;
-		//Check if we can move left
-		Node* parent = n->parent;
-		if(parent)
+		//Vector for storing children in a list to eventually pass in again in a recursive call
+		std::vector<Node*> children;
+		//Print out arbitrary amount of spaces, the parent's value, then the spaces again
+		for(int i = 0; i < parents.size(); i++)
 		{
-			if(parent->leftChild->visited)
+			for(int j = 0; j < indent; j++)
 			{
-				//Unmark, move to parent
-				n->visited = false;
-				loops++;
-				neighborNode = findNeighbor(parent, b);
+				std::cout << "--";
 			}
-			else
+			std::cout  << parents[i]->value;
+			for(int j = 0; j < indent; j++)
 			{
-				//Move to left
-				n->visited = false;
-				n = parent->leftChild;
-				//Then go right X-1 where X is # of times went up
-				for(int i = 0; i < loops - 1; i++)
-				{
-					n = n->rightChild;
-				}
-				neighborNode = n;
-				return neighborNode;
+				std::cout <<  "--";
 			}
-		}
-		else
-		{
-			loops = 0;
-			n->visited = false;
-			return zeroNode;
-		}
-	}
-	else
-	{
-		//Mark visited
-		n->visited = true;
-		//Check if we can move right
-		Node* parent = n->parent;
-		if(parent)
-		{
-			if(parent->rightChild->visited)
-			{
-				//Unmark, move to parent
-				n->visited = false;
-				loops++;
-				neighborNode = findNeighbor(parent, b);
-			}
-			else
-			{
-				//Move to right
-				n->visited = false;
-				n = parent->rightChild;
-				//Then go left X-1 where X is # of times went up
-				for(int i = 0; i < loops - 1; i++)
-				{
-					n = n->leftChild;
-				}
-				neighborNode = n;
-				return neighborNode;
-			}
-		}
-		else
-		{
-			loops = 0;
-			n->visited = false;
-			return zeroNode;
-		}
-	}
-	return neighborNode;
-}
 
-
-std::pair<Node*, Node*> returnNeighbors(Node* n)
-{
-	Node *left, *right;
-	//Given a node, find its neighbors
-	//Left neighbor
-	left = findNeighbor(n, 1);
-	//Right neighbor
-	right = findNeighbor(n, 0);
-	return std::pair<Node*, Node*>(left, right);
-}
-
-
-void printTree(Node* n, int indent=0)
-{
-	if(n != NULL)
-	{
-		std::cout << n->value << "\n ";
-		if(indent)
-		{
-			std::cout << std::setw(indent) << ' ';
+			//Add the current parent's children to the list
+			children.push_back(parents[i]->leftChild);
+			children.push_back(parents[i]->rightChild);
 		}
-		if(n->leftChild)
-		{
-			printTree(n->leftChild, indent+4);
-		}
-		if(n->rightChild)
-		{
-			printTree(n->rightChild, indent+4);
-		}
+		//Next line for next level, increment index, recursive call
+		std::cout << std::endl;
+		j++;
+		printTree(children, depth, j);
 	}
 }
 
-void genChild(Node* parent, int levels, int j)
+//Parameters:  List of parents at a level, total depth of the tree, index of 1
+void writeTree(std::vector<Node*> parents, int depth, int j)
 {
-	std::vector<Node*> children;
-	for(int i = j; i < levels; i++)
+	//Arbitrary indentation formula to make the tree print out nicely
+	int indent = pow(2, depth) / pow(2, j-1);
+	//File writing
+	std::ofstream output("tree.txt", std::ios::app);
+	//If we hit the total depth of the tree, then we stop, otherwise keep printing values
+	if(j <= depth)
 	{
-		if(parent->leftChild && parent->rightChild)
+		//Vector for storing children in a list to eventually pass in again in a recursive call
+		std::vector<Node*> children;
+		//Print out arbitrary amount of spaces, the parent's value, then the spaces again
+		for(int i = 0; i < parents.size(); i++)
 		{
-			//genChild(parent->leftChild, levels, i);
-			//genChild(parent->rightChild, levels, i);
-
-			//foreach item in list, genchild(item)
-			for(Node* c : children)
+			for(int j = 0; j < indent; j++)
 			{
-				genChild(c, levels, i);
+				output << "..";
 			}
-			//Clear
-			children.clear();
+			output << parents[i]->value;
+			for(int j = 0; j < indent; j++)
+			{
+				output << "..";
+			}
+			//Add the current parent's children to the list
+			children.push_back(parents[i]->leftChild);
+			children.push_back(parents[i]->rightChild);
 		}
-		else
-		{
-			std::pair<Node*, Node*> results = returnNeighbors(parent);
-			int lValue = parent->value + results.first->value;
-			parent->leftChild = new Node(lValue, i+1, parent);
-
-			int rValue = parent->value + results.second->value;
-			parent->rightChild = new Node(rValue, i+1, parent);
-
-			//Add
-			children.push_back(parent->leftChild);
-			children.push_back(parent->rightChild);
-		}
+		//Next line for next level, increment index, recursive call
+		output << "\n";
+		j++;
+		writeTree(children, depth, j);
 	}
+	output << "\n";
+	output.close();
 }
 
+//Parameters: A list of all parents at that level, how many levels in the tree total, index of 1
 void genChild(std::vector<Node*> parents, int levels, int j)
 {
-	std::vector<Node*> children;
-	for(int i = 0; i < parents.size(); i++)
-	{
-		int lValue = parents[i]->value, rValue = parents[i]->value;
-		//Left neighbor
-		if((i-1) >= 0)
-		{
-			lValue += parents[i-1]->value;
-		}
-		//Right neighbor
-		if((i+1) < parents.size())
-		{
-			rValue += parents[i+1]->value;
-		}
-		parents[i]->leftChild = new Node(lValue, parents[i]->level + 1, parents[i]);
-		parents[i]->rightChild = new Node(rValue, parents[i]->level + 1, parents[i]);
-			
-		//std::cout << "L: " << lValue << ", R: " << rValue << std::endl;
-
-		children.push_back(parents[i]->leftChild);
-		children.push_back(parents[i]->rightChild);
-	}
-	j++;
+	//If index >= levels, we've made enough branches, so stop
 	if(j < levels)
 	{
+		//Vector for storing all children at a level to eventually pass in again in a recursive call
+		std::vector<Node*> children;
+		//For every parent in the vector, find the values and make children
+		for(int i = 0; i < parents.size(); i++)
+		{
+			int lValue = parents[i]->value, rValue = parents[i]->value;
+			//Left neighbor is the node before it in the vector, and right neighbor is the node right after it
+			//If not applicable, the value is simply the parent's value
+			//Left neighbor
+			if((i-1) >= 0)
+			{
+				lValue += parents[i-1]->value;
+			}
+			//Right neighbor
+			if((i+1) < parents.size())
+			{
+				rValue += parents[i+1]->value;
+			}
+			//Making the children nodes
+			parents[i]->leftChild = new Node(lValue, parents[i]->level + 1, parents[i]);
+			parents[i]->rightChild = new Node(rValue, parents[i]->level + 1, parents[i]);
+
+			//Add the children to the vector (left to right order)
+			children.push_back(parents[i]->leftChild);
+			children.push_back(parents[i]->rightChild);
+		}
+		//Increase the index (so we know when to stop), and then recursive call
+		j++;
 		genChild(children, levels, j);
-		//std::cout << "j: " << j << std::endl;
 	}
 }
